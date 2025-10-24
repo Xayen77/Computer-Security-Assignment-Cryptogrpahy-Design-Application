@@ -1,122 +1,218 @@
-# 🔐 VishStream-24: Custom Stream Cipher Implementation (COMPUTER SECURITY ASSIGNMENT) 
+# VishStream-24X Stream Cipher
 
-GROUP MEMBERS: VISHALL A/L MAHADEVAN, AHMAD ASHRAF BIN ABDUL AZIZ, MUHAMMAD IDLAN BIN IDRIS, MOHAMMAD EIZWAN EIZAIDIE BIN MATHEUS
+A custom stream cipher implementation using dual Linear Feedback Shift Registers (LFSRs) with non-linear combination for educational purposes.
 
+## 📋 Project Information
 
+**Course:** Computer Security Assignment  
+**Institution:** [Your Institution Name]
 
+### Group Members
+- Vishall A/L Mahadevan (22007347)
+- Ahmad Ashraf Bin Abdul Aziz (21001218)
+- Muhammad Idlan Bin Idris (21001226)
+- Mohammad Eizwan Eizaidie Bin Matheus (22003905)
 
+## 🔐 Overview
 
-A simple implementation of a stream cipher using a Linear Feedback Shift Register (LFSR) for educational purposes.
-Overview
-VishStream-5 demonstrates the fundamental concepts of stream cipher encryption using an LFSR to generate a pseudorandom keystream. This implementation is designed for learning cryptographic principles and should not be used for actual security applications.
-How It Works
-1. Linear Feedback Shift Register (LFSR)
-The LFSR is the core component that generates the keystream:
+VishStream-24X is a stream cipher that combines two 16-bit Linear Feedback Shift Registers (LFSRs) with a non-linear combining function to generate pseudorandom keystreams for encryption and decryption operations.
 
-Seed (Initial State): A sequence of bits that serves as your encryption key (e.g., [1,0,1,1,0])
-Tap Positions: Specific bit positions that are XORed together to generate new bits
-Shift Operation: The register shifts right, outputting one bit at a time while feeding the new bit on the left
+### Key Features
 
-Example LFSR Step:
-Initial state: [1,0,1,1,0]
-Taps at positions 0 and 2 (from right):
-  - Bit at position 0: 0
-  - Bit at position 2: 1
-  - New bit = 0 XOR 1 = 1
+- **Dual LFSR Architecture**: Uses two independent 16-bit LFSRs for enhanced randomness
+- **Non-linear Combination**: Implements `(bit1 ⊕ bit2) ⊕ (bit1 ∧ bit2)` for increased security
+- **SHA-256 Key Derivation**: Converts user passwords into deterministic LFSR seeds
+- **XOR-based Encryption**: Symmetric encryption allowing same function for encrypt/decrypt
+- **Customizable Tap Positions**: Configurable feedback polynomials for both LFSRs
 
-Output the rightmost bit (0), shift right, insert new bit:
-New state: [1,1,0,1,1]
+## 🛠️ Technical Specifications
+
+### LFSR Configuration
+
+| Component | Size | Tap Positions |
+|-----------|------|---------------|
+| LFSR 1 | 16 bits | [0, 2, 3, 5] |
+| LFSR 2 | 16 bits | [1, 4, 6, 9] |
+
+### Architecture
+```
+User Key → SHA-256 Hash → Split Seeds → LFSR1 + LFSR2
+                                           ↓
+                                    Non-linear Combiner
+                                           ↓
+                                      Keystream
+                                           ↓
+                              Plaintext ⊕ Keystream = Ciphertext
 ```
 
-### 2. Keystream Generation
+## 📦 Installation
 
-The LFSR repeatedly steps through states, producing a stream of pseudorandom bits equal in length to your message.
+### Prerequisites
 
-### 3. Encryption Process
+- Python 3.6 or higher
+- No external dependencies required (uses standard library only)
+
+### Setup
+
+1. Clone or download the repository
+2. Navigate to the project directory
+3. Run the script directly:
+```bash
+python vishstream24x.py
 ```
-Plaintext:  H    E    L    L    O
-            ⊕    ⊕    ⊕    ⊕    ⊕  (XOR operation)
-Keystream: [pseudorandom bytes from LFSR]
-            =    =    =    =    =
-Ciphertext: [encrypted bytes]
-4. Decryption Process
-Decryption uses the same process as encryption:
 
-Reinitialize the LFSR with the same seed
-Generate the same keystream
-XOR the ciphertext with the keystream to recover the plaintext
+## 💻 Usage
 
-This works because: (Plaintext ⊕ Keystream) ⊕ Keystream = Plaintext
-Usage
-Basic Encryption/Decryption
-python# Initialize LFSR with a 5-bit seed and tap positions
-seed = [1, 0, 1, 1, 0]
-taps = [0, 2]
-lfsr = LFSR(seed, taps)
+### Basic Example
+```python
+from vishstream24x import VishStream24X
+
+# Initialize cipher with a secret key
+cipher = VishStream24X("my_secret_password")
 
 # Encrypt a message
-plaintext = b"HELLO"
-keystream_bits = lfsr.generate_keystream(len(plaintext) * 8)
-keystream = bits_to_bytes(keystream_bits)
-ciphertext = xor_bytes(plaintext, keystream)
+plaintext = b"HELLO WORLD"
+ciphertext = cipher.encrypt(plaintext)
+print(f"Encrypted: {ciphertext.hex()}")
 
-# Decrypt (reinitialize LFSR with same seed)
-lfsr = LFSR(seed, taps)
-keystream_bits = lfsr.generate_keystream(len(ciphertext) * 8)
-keystream = bits_to_bytes(keystream_bits)
-decrypted = xor_bytes(ciphertext, keystream)
-Custom Keys and Taps
-python# Use a longer seed for a longer period before repetition
-seed = [1, 1, 0, 1, 0, 1, 1, 0]  # 8-bit seed
-taps = [0, 2, 3, 5]               # Multiple tap positions
-
-# Encrypt longer messages
-plaintext = b"This is a secret message!"
-# ... proceed with encryption as above
+# Decrypt the message (reinitialize cipher first!)
+cipher = VishStream24X("my_secret_password")
+decrypted = cipher.decrypt(ciphertext)
+print(f"Decrypted: {decrypted}")
 ```
 
-## Key Components
+### Interactive Demo
 
-### `LFSR` Class
+Run the script directly for an interactive demonstration:
+```bash
+python vishstream24x.py
+```
 
-- **`__init__(seed_bits, tap_positions)`**: Initialize with a bit sequence and tap positions
-- **`step()`**: Perform one LFSR iteration and return an output bit
-- **`generate_keystream(length)`**: Generate a keystream of specified bit length
+Example session:
+```
+=== VishStream-24X Encryption Demo ===
+Enter secret key: SecurePassword123
+Plaintext : b'HELLO WORLD'
+Ciphertext (hex): a3f5b2c8d4e1f7a9b3c5
+Decrypted : b'HELLO WORLD'
+```
+
+## 🔧 API Reference
+
+### Classes
+
+#### `LFSR`
+Linear Feedback Shift Register implementation.
+
+**Parameters:**
+- `seed_bits` (list): Initial state as list of bits
+- `tap_positions` (list): Positions for feedback XOR operation
+
+**Methods:**
+- `step()`: Advances LFSR one step, returns output bit
+
+#### `VishStream24X`
+Main cipher class.
+
+**Parameters:**
+- `key` (str): Secret key for encryption/decryption
+
+**Methods:**
+- `generate_keystream(num_bytes)`: Generates pseudorandom keystream
+- `encrypt(plaintext)`: Encrypts data (bytes)
+- `decrypt(ciphertext)`: Decrypts data (bytes)
 
 ### Helper Functions
 
-- **`bits_to_bytes(bit_list)`**: Convert a list of bits to bytes
-- **`xor_bytes(data, keystream)`**: XOR two byte sequences together
+- `text_to_bits_from_key(key, length)`: Converts key to bit array using SHA-256
+- `bits_to_bytes(bit_list)`: Converts bit list to bytes
+- `xor_bytes(data, keystream)`: XORs two byte sequences
 
-## Security Considerations
+## ⚠️ Important Notes
 
-⚠️ **This implementation is for educational purposes only!**
+### Cipher Reinitialization
 
-**Weaknesses:**
-- **Short period**: A 5-bit LFSR has a maximum period of 31 states before repeating
-- **Linear structure**: The cipher is vulnerable to known-plaintext attacks
-- **Simple tap configuration**: Easy to analyze and break
-- **No authentication**: Provides no integrity checking
+**Critical:** You must reinitialize the cipher with the same key before decryption:
+```python
+# ✅ CORRECT
+cipher = VishStream24X(key)
+ciphertext = cipher.encrypt(plaintext)
 
-**For real applications**, use established cryptographic libraries like:
-- Python's `cryptography` library
-- `PyCryptodome`
-- Industry-standard algorithms (AES-GCM, ChaCha20-Poly1305)
+cipher = VishStream24X(key)  # Reinitialize!
+decrypted = cipher.decrypt(ciphertext)
 
-## Example Output
+# ❌ WRONG
+cipher = VishStream24X(key)
+ciphertext = cipher.encrypt(plaintext)
+decrypted = cipher.decrypt(ciphertext)  # Will produce garbage!
 ```
-Plaintext : b'HELLO'
-Keystream : 5e4a39f7cd
-Ciphertext: 161f2d9ba1
-Decrypted : b'HELLO'
-Learning Extensions
-Try modifying the code to explore:
 
-Different seed lengths: How does a longer seed affect the period?
-Various tap configurations: Experiment with different tap positions
-Known-plaintext attacks: If you know part of the plaintext, can you recover the seed?
-Period calculation: Calculate and verify the LFSR's period length
+This is required because the LFSR state changes during encryption and must be reset to the initial state for decryption.
 
-Requirements:
-Python 3.x
-No external dependencies required
+## 🔒 Security Considerations
+
+### Educational Purpose Only
+
+**This cipher is designed for educational purposes and should NOT be used in production environments.**
+
+### Known Limitations
+
+1. **Small State Space**: 16-bit LFSRs provide only 2^16 possible states each
+2. **Known Plaintext Attacks**: Vulnerable if attacker knows plaintext-ciphertext pairs
+3. **Algebraic Attacks**: Linear structure can be exploited mathematically
+4. **No Authentication**: Provides no integrity or authenticity guarantees
+5. **Short Period**: Maximum period is limited by LFSR size
+
+### Recommendations for Real-World Use
+
+For actual security applications, use established standards:
+- **AES-GCM** for authenticated encryption
+- **ChaCha20-Poly1305** for stream cipher needs
+- **TLS 1.3** for network communications
+
+## 📚 Educational Value
+
+This implementation demonstrates:
+
+- Stream cipher principles
+- LFSR operation and feedback polynomials
+- Non-linear combining functions
+- Key derivation from passwords
+- XOR-based encryption symmetry
+
+## 🧪 Testing
+
+Run basic tests:
+```python
+# Test encryption/decryption cycle
+def test_encryption_cycle():
+    key = "test_key"
+    plaintext = b"Test message 123"
+    
+    cipher1 = VishStream24X(key)
+    ciphertext = cipher1.encrypt(plaintext)
+    
+    cipher2 = VishStream24X(key)
+    decrypted = cipher2.decrypt(ciphertext)
+    
+    assert plaintext == decrypted, "Decryption failed!"
+    print("✓ Encryption cycle test passed")
+
+test_encryption_cycle()
+```
+
+## 📄 License
+
+This project is created for academic purposes. Please check with your institution regarding usage and distribution policies.
+
+## 🤝 Contributing
+
+This is an academic assignment. For educational improvements or bug fixes, please contact the group members.
+
+## 📧 Contact
+
+For questions regarding this implementation, please contact any of the group members listed above.
+
+---
+
+**Disclaimer:** This is a student project for educational purposes. Do not use this cipher for protecting sensitive or real-world data. Always use industry-standard, peer-reviewed cryptographic libraries for production applications.
