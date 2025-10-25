@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------
-#  DeMorganBlock Cipher (User Input Version)
-#  Demonstrates custom block cipher using De Morgan's law
-#  with user-provided plaintext and key.
+#  DeMorganBlock Cipher 
+#  Custom cipher using De Morgan's Law + Feistel structure
+#  Now with improved round key generation for more variation.
 # ---------------------------------------------------------------
 
 from typing import List
@@ -48,17 +48,28 @@ def unpad_pkcs7(data: bytes) -> bytes:
 
 
 # ===============================================================
-# Key schedule
+# Enhanced Key Schedule
 # ===============================================================
 def key_schedule(master_key: bytes, rounds: int = ROUNDS) -> List[int]:
+    """
+    Generate round keys by rotating, mixing, and XORing the master key.
+    Produces more variation than the basic version.
+    """
     if len(master_key) != 8:
         raise ValueError("Key must be exactly 8 bytes (8 characters)")
+
     k64 = int.from_bytes(master_key, 'big') & 0xFFFFFFFFFFFFFFFF
     round_keys = []
+
     for i in range(rounds):
+        # 1. Rotate key by 8*i bits
         rot = ((k64 << (8 * i)) & 0xFFFFFFFFFFFFFFFF) | (k64 >> (64 - 8 * i))
-        rk = rot & 0xFFFFFFFF
+        # 2. Nonlinear mixing
+        mixed = ((rot ^ (rot >> 17)) + (rot << 5)) & 0xFFFFFFFFFFFFFFFF
+        # 3. XOR with round number and mask to 32 bits
+        rk = (mixed ^ (0x9E3779B1 * (i + 1))) & 0xFFFFFFFF
         round_keys.append(rk)
+
     return round_keys
 
 
@@ -67,9 +78,8 @@ def key_schedule(master_key: bytes, rounds: int = ROUNDS) -> List[int]:
 # ===============================================================
 def F_demorgan(r32: int, round_key32: int, round_no: int) -> int:
     a = r32 ^ round_key32
-    b = (a * 0x9E3779B1) & 0xFFFFFFFF  # mix constant
+    b = (a * 0x9E3779B1) & 0xFFFFFFFF
 
-    # De Morgan operations
     ab_direct = a & b
     ab_demorgan = (~((~a) | (~b))) & 0xFFFFFFFF  # same as a & b
     or_direct = a | b
@@ -86,7 +96,7 @@ def F_demorgan(r32: int, round_key32: int, round_no: int) -> int:
 
 
 # ===============================================================
-# Feistel structure
+# Feistel Network
 # ===============================================================
 def encrypt_block(block8: bytes, round_keys: List[int]) -> bytes:
     L, R = bytes_to_u32_pair(block8)
@@ -105,7 +115,7 @@ def decrypt_block(block8: bytes, round_keys: List[int]) -> bytes:
 
 
 # ===============================================================
-# Encrypt/decrypt entire message
+# Encrypt/decrypt full message
 # ===============================================================
 def encrypt_message(plaintext: bytes, master_key: bytes) -> bytes:
     rk = key_schedule(master_key, rounds=ROUNDS)
@@ -125,23 +135,23 @@ def decrypt_message(ciphertext: bytes, master_key: bytes) -> bytes:
 
 
 # ===============================================================
-# Main (user interaction)
+# Interactive demo
 # ===============================================================
 if __name__ == "__main__":
-    print("=== DeMorgan–Feistel Block Cipher ===")
+    print("=== DeMorgan–Feistel Block Cipher (Enhanced Key Schedule) ===")
     plaintext = input("Enter plaintext message: ").encode()
     key_input = input("Enter 8-character key: ")
 
-    # Ensure key length = 8
     while len(key_input.encode()) != 8:
         key_input = input("Key must be exactly 8 characters. Try again: ")
+
     master_key = key_input.encode()
 
-    # Encrypt
+    # Encryption
     ciphertext = encrypt_message(plaintext, master_key)
     print("\nCiphertext (hex):", ciphertext.hex())
 
-    # Decrypt
+    # Decryption
     recovered = decrypt_message(ciphertext, master_key)
     print("Decrypted message:", recovered.decode())
 
