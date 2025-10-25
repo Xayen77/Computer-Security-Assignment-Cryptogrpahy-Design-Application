@@ -58,12 +58,12 @@ Run the Program:
 
 Example:
 --------
--Enter plaintext message: I love computer security
--Enter 8-character key: 88992211
+Enter plaintext message: I love computer security
+Enter 8-character key: 88992211
 
--Ciphertext (hex): fd85ca0af041c1d30246c8cc44afec2d49ba828d146331b800453b80b6080a8a
--Decrypted message: I love computer security
--Encryption & Decryption successful!
+Ciphertext (hex): fd85ca0af041c1d30246c8cc44afec2d49ba828d146331b800453b80b6080a8a
+Decrypted message: I love computer security
+Encryption & Decryption successful!
 
 Design Justification
 --------------------
