@@ -58,7 +58,6 @@ Run the Program:
 
 Example:
 --------
-=== DeMorgan–Feistel Block Cipher (Enhanced Key Schedule) ===
 Enter plaintext message: I love computer security
 Enter 8-character key: 88992211
 
