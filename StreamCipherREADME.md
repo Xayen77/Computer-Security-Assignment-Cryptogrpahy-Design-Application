@@ -5,7 +5,7 @@ A custom stream cipher implementation using dual Linear Feedback Shift Registers
 ## 📋 Project Information
 
 **Course:** Computer Security Assignment  
-**Institution:** [Your Institution Name]
+**Institution:** [Universiti Teknologi Petronas] 
 
 ### Group Members
 - Vishall A/L Mahadevan (22007347)
