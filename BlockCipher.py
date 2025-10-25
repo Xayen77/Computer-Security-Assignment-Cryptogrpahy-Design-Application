@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-#  DeMorgan–Feistel Block Cipher (User Input Version)
+#  DeMorganBlock Cipher (User Input Version)
 #  Demonstrates custom block cipher using De Morgan's law
 #  with user-provided plaintext and key.
 # ---------------------------------------------------------------
