@@ -1,4 +1,4 @@
-DeMorganBlock Cipher (Enhanced Key Schedule)
+DeMorganBlock Cipher
 ====================================================
 
 Overview
